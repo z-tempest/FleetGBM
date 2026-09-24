@@ -2,4 +2,3 @@ notebooks/EDA.ipynb filter=lfs diff=lfs merge=lfs -text
 notebooks/FE.ipynb filter=lfs diff=lfs merge=lfs -text
 data.zip filter=lfs diff=lfs merge=lfs -text
 data.zip !text !filter !merge !diff
-*.ipynb filter=lfs diff=lfs merge=lfs -text
