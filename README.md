@@ -1,43 +1,42 @@
-# FleetGBM: Scania Component-X Challenge
+<img src="assets/scania.jpg" alt="Scania truck" width="100%"/>
 
-One-line description of what this does.
+# Scania Component X Challenge
+
+[Dataset](https://huggingface.co/datasets/<your-username>/<dataset-name>) | [Model](https://huggingface.co/<your-username>/<model-name>)
 
 ## Overview
 
-Brief paragraph on the project — what problem it solves, what's in here.
+This repo is my solution to the Scania Component X Challenge: a real-world predictive maintenance problem built from Scania truck fleet data. Given a vehicle's sensor readouts and specs, the goal is to estimate how close it is to a component failure so maintenance can be scheduled before the truck is stranded on the side of the road.
 
-## Data
+<img src="assets/EHI.png" alt="Equipment Health Indicator over time, split into five time-to-failure classes" width="600"/>
 
-The full dataset (~5.4GB) is hosted externally due to GitHub's file size limits.
+## Getting Started
 
-**Download:** [data.zip](PLACEHOLDER_DATA_URL)
-
-Unzip into `./data/` before running anything.
-
-## Setup
+Clone the repository:
 
 ```bash
-git clone <repo-url>
-cd <repo-name>
-pip install -r requirements.txt
+git clone https://github.com/z-temepst/FleetGBM.git
+cd FleetGBM
 ```
 
-## Usage
+Download the dataset and model from Hugging Face:
 
 ```bash
-# how to run / entry point
+pip install huggingface_hub
+
+# Dataset
+huggingface-cli download ZephyrNTempest/scaniacxc \
+    --repo-type dataset \
+    --local-dir data/
+
+# Model
+huggingface-cli download ZephyrNTempest/FleetGBM \
+    --local-dir models/
 ```
 
-## Repo structure
+## Results
 
-```
-.
-├── notebooks/
-├── data/          # not tracked — download from link above
-├── src/
-└── README.md
-```
-
-## License
-
-TBD
+| Split      | Score | RMSE |
+| ---------- | :---: | :--: |
+| Validation |  TBD  | TBD  |
+| Test       |  TBD  | TBD  |
