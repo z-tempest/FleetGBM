@@ -10,6 +10,10 @@ This repo is my solution to the Scania Component X Challenge: a real-world predi
 
 <img src="assets/EHI.png" alt="Equipment Health Indicator over time, split into five time-to-failure classes" width="600"/>
 
+The classification error is asymmetric, with false negatives (missing a failure) weighted more heavily than false positives (unnecessary maintenance).
+
+The model is an XGBoost classifier trained with balanced sample weights. At prediction time, probabilities are corrected for the true class prior, then each vehicle is assigned the class that minimizes expected cost under the challenge’s cost matrix (a Bayes-optimal decision rule) instead of the most probable class.
+
 ## Getting Started
 
 Clone the repository:
@@ -36,7 +40,7 @@ huggingface-cli download ZephyrNTempest/FleetGBM \
 
 ## Results
 
-| Split      | Score | RMSE |
-| ---------- | :---: | :--: |
-| Validation |  TBD  | TBD  |
-| Test       |  TBD  | TBD  |
+| Split      | Score  | RMSE |
+| ---------- | :----: | :--: |
+| Validation | -41706 | 2.90 |
+| Test       | -41189 | 2.67 |

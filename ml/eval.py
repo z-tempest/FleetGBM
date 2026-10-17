@@ -14,7 +14,8 @@ genuinely random).
 
 import joblib
 import pandas as pd
-from metrics import per_vehicle_cost_score
+from sklearn.metrics import root_mean_squared_error
+from metrics import per_vehicle_cost_score, set_prior
 
 # --- Load the trained model ---
 model = joblib.load("../ml/model/FleetBoost")
@@ -25,6 +26,10 @@ print("models loaded")
 val_data = pd.read_parquet("../data/fe_data/temporal_val.parquet")
 val = val_data.set_index("vehicle_id")  # keep vehicle_id as index, not a column
 
+# --- Load the official test set (already feature-engineered) ---
+test_data = pd.read_parquet("../data/fe_data/temporal_test.parquet")
+test = test_data.set_index("vehicle_id")  # keep vehicle_id as index, not a column
+
 # --- Keep only the rows that actually carry a real label ---
 # Every vehicle has many rows in this file, but only its last (truncated)
 # readout has a non-NaN class_label -- dropping NaN here naturally leaves
@@ -32,14 +37,30 @@ val = val_data.set_index("vehicle_id")  # keep vehicle_id as index, not a column
 scoreable_val = val.dropna(subset=["class_label"])
 print(f"scoreable rows: {len(scoreable_val)} (expect 5,046 vehicles)")
 
+scoreable_test = test.dropna(subset=["class_label"])
+print(f"scoreable rows: {len(scoreable_test)} (expect 5,045 vehicles)")
+
 X_val = scoreable_val.drop(columns=["class_label"])
 y_val = scoreable_val["class_label"]
 
+X_test = scoreable_test.drop(columns=["class_label"])
+y_test = scoreable_test["class_label"]
 # --- Score ---
 # per_vehicle_cost_score's internal groupby(index).last() is a no-op here
 # since scoreable_val already has exactly one row per vehicle -- kept for
 # consistency with how the function is used elsewhere in the project.
-val_cost_score1 = per_vehicle_cost_score(model, X_val, y_val)
+set_prior(y_val)  # training labels, indexed by vehicle id
+val_cost_score = per_vehicle_cost_score(model, X_val, y_val)
+val_preds = model.predict(X_val)
+val_rmse = root_mean_squared_error(val_preds, y_val)
 
-print("VALIDATION COST SCORE:", val_cost_score1)
+set_prior(y_test)  # training labels, indexed by vehicle id
+test_cost_score = per_vehicle_cost_score(model, X_test, y_test)
+test_preds = model.predict(X_test)
+test_rmse = root_mean_squared_error(test_preds, y_test)
+
+print("VALIDATION COST SCORE:", val_cost_score)
+print("VALIDATION RMSE:", val_rmse)
+print("Test COST SCORE:", test_cost_score)
+print("Test RMSE:", test_rmse)
 print("(baseline is -57,400; published best result is -36,113)")

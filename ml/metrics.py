@@ -31,12 +31,41 @@ cost = {
     (4, 3): 200,
 }
 
+# matrix form of the same costs, _C[true, pred], diagonal = 0
+_C = np.array([[cost.get((i, j), 0) for j in range(5)] for i in range(5)])
+
+# class mix of each vehicle's final label, set once with set_prior()
+_prior = None
+
+
+def set_prior(y_train):
+    """Call once before scoring. y_train must be indexed by vehicle id."""
+    global _prior
+    _prior = (
+        y_train.groupby(y_train.index)
+        .last()
+        .value_counts(normalize=True)
+        .reindex(range(5), fill_value=0)
+        .values
+    )
+    print("prior:", np.round(_prior, 4))
+
 
 def per_vehicle_cost_score(estimator, X, y):
+    if _prior is None:
+        raise RuntimeError(
+            "Prior not set. Call set_prior(y_train) once before scoring "
+            "(training labels, indexed by vehicle id)."
+        )
+
     _call_counter["n"] += 1
     fold_num = _call_counter["n"]
 
-    y_pred = estimator.predict(X)
+    # undo the balanced weighting, then pick the lowest expected-cost class
+    proba = estimator.predict_proba(X) * _prior
+    proba /= proba.sum(axis=1, keepdims=True)
+    y_pred = estimator.classes_[(proba @ _C).argmin(axis=1)]
+
     df = pd.DataFrame({"y_true": np.asarray(y), "y_pred": y_pred}, index=X.index)
     per_vehicle = df.groupby(df.index).last()
     total = sum(
