@@ -40,7 +40,7 @@ huggingface-cli download ZephyrNTempest/FleetGBM \
 
 ## Results
 
-| Split      | Score  | RMSE |
-| ---------- | :----: | :--: |
-| Validation | -41706 | 2.90 |
-| Test       | -41189 | 2.67 |
+| Split      | Score  |
+| ---------- | :----: |
+| Validation | -41706 |
+| Test       | -41189 |
