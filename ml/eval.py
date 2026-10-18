@@ -12,9 +12,11 @@ close to failure, while official validation's truncation point is
 genuinely random).
 """
 
+from math import log
+import numpy as np
 import joblib
 import pandas as pd
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import log_loss
 from metrics import per_vehicle_cost_score, set_prior
 
 # --- Load the trained model ---
@@ -51,16 +53,10 @@ y_test = scoreable_test["class_label"]
 # consistency with how the function is used elsewhere in the project.
 set_prior(y_val)  # training labels, indexed by vehicle id
 val_cost_score = per_vehicle_cost_score(model, X_val, y_val)
-val_preds = model.predict(X_val)
-val_rmse = root_mean_squared_error(val_preds, y_val)
 
 set_prior(y_test)  # training labels, indexed by vehicle id
 test_cost_score = per_vehicle_cost_score(model, X_test, y_test)
-test_preds = model.predict(X_test)
-test_rmse = root_mean_squared_error(test_preds, y_test)
 
 print("VALIDATION COST SCORE:", val_cost_score)
-print("VALIDATION RMSE:", val_rmse)
 print("Test COST SCORE:", test_cost_score)
-print("Test RMSE:", test_rmse)
 print("(baseline is -57,400; published best result is -36,113)")
